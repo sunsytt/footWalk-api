@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.log
+
+# Variables de entorno: nunca se suben
+.env
+.env.*
+!.env.example
+
+# Cliente generado por Prisma (se regenera con `npx prisma generate`)
+src/generated/
+
+# Carpetas que creó `prisma init` para asistentes de IA
+.agents/
+.claude/
+.cursor/
+.devin/

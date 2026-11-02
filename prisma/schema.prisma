@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum StepSource {
+  MANUAL
+  SENSOR
+}
+
+model User {
+  id           Int         @id @default(autoincrement())
+  name         String
+  email        String      @unique
+  passwordHash String      @map("password_hash")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  dailySteps   DailyStep[]
+  goals        Goal[]
+  walks        Walk[]
+  @@map("users")
+}
+
+model DailyStep {
+  id         Int        @id @default(autoincrement())
+  userId     Int        @map("user_id")
+  date       DateTime   @db.Date
+  totalSteps Int        @map("total_steps")
+  source     StepSource @default(MANUAL)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, date])
+  @@map("daily_steps")
+}
+
+model Goal {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @map("user_id")
+  name        String
+  targetSteps Int       @map("target_steps")
+  startDate   DateTime  @map("start_date") @db.Date
+  endDate     DateTime? @map("end_date") @db.Date
+  createdAt   DateTime  @default(now()) @map("created_at")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("goals")
+}
+
+model Walk {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @map("user_id")
+  name            String   @db.VarChar(60)
+  date            DateTime @db.Date
+  steps           Int
+  distanceKm      Float    @map("distance_km")
+  durationMinutes Int      @map("duration_minutes")
+  notes           String?  @db.VarChar(120)
+  createdAt       DateTime @default(now()) @map("created_at")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("walks")
+}
